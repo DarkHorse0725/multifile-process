@@ -12,6 +12,7 @@ def get_pdfs_text(pdf_docs):
 # Single PDF
 def get_pdf_text(pdf):
     text = ""
+    print('pdf = ', pdf.type)
     pdf_reader = PdfReader(pdf)
     for page in pdf_reader.pages:
         text += page.extract_text()

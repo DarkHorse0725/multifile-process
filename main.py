@@ -13,6 +13,7 @@ from htmlTemplates import css, bot_template, user_template
 from textFunctions import get_pdf_text, get_pdfs_text, get_text_chunks
 from vizFunctions import roberta_barchat, vaders_barchart
 from prompts import set_prompt
+import os
 
 
 def init_ses_states():
@@ -74,6 +75,11 @@ def process_docs(pdf_docs, TEMP, MODEL):
 
     st.session_state.conversation = get_conversation_chain(vectorstore, temp=TEMP, model=MODEL)
     st.session_state.pdf_processed = True
+
+def process_urls(url, TEMP, MODEL):
+    st.session_state["conversation"] = None
+    st.session_state["chat_history"] = None
+    st.session_state["user_question"] = ""
 
 
 def pdf_analytics(pdf_docs):
@@ -143,11 +149,16 @@ def sidebar():
         #     TEMP = st.slider("Temperature",0.0,1.0,0.5)
         # pdf_analytics_settings()
         with st.expander("Your Documents", expanded=True):
-            pdf_docs = st.file_uploader("Upload your PDFs here", accept_multiple_files=True)
+            document_url = st.text_input('URL', placeholder='Please input the URL')
+            # pdf_docs = st.file_uploader("Upload your PDFs here", accept_multiple_files=True)
             if st.button("Process Files + New Chat"):
+                # print('document_url = ', document_url)
                 if pdf_docs:
                     with st.spinner("Processing"):
                         process_docs(pdf_docs, 0.5, 'gpt-3.5-turbo')
+                # elif len(document_url) > 0:
+                #     with st.spinner("Processing"):
+
                 else: 
                     st.caption("Please Upload At Least 1 PDF")
                     st.session_state.pdf_processed = False
@@ -172,6 +183,7 @@ def main():
 
 
 if __name__ == '__main__':
-    load_dotenv()
+    os.environ['OPENAI_API_KEY'] = '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'
+    # load_dotenv()
     main()
 
