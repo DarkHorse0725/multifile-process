@@ -82,3 +82,73 @@ ChatGPT has strong query/ LLM capabilities but can not handle large documents, m
 
 pincone API key: 68358a06-3931-4458-b131-29e284df630a
 openai  API key: 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
+
+
+
+
+### Overview
+
+*ChatGPT has strong query/ LLM capabilities but can not handle large documents, multiple documents, PDFs, URLs well.*  
+
+*I want to an app to run ChatGPT across large files and multiple files.  Ideally, that doesn’t require a bunch of cut and paste/ manual steps*
+
+*Spend a week and come up with a prototype*
+
+- Administration
+    - Have a username and password
+        - ability to save Open AI key
+        - ability to save prompts
+            - at the individual level
+            - perhaps at the team level (maybe we use google docs as a hack)
+        - Ability to export prompts / share within the team
+        - admin super role
+    - Initially local download
+        - ideally able to access google drive (but there are likely permission issues)
+- Level 1: Get larger files into a workable ChatGPT interface
+    
+    [example document](https://app.tegus.co/guest/view/tuM7wYVtj1ykx8WEGquBF8UwDS7gVKDXQpuydKV8H75Z6onX5Yn9tWhtiPz8) 
+    
+- Level 2: Get different types of files into a workable ChatGPT interface
+    - URLs
+    - PDFs
+    - Google docs
+    - Google slides
+    - email input
+        - newsletters
+        - tegus call email
+    - structured warehouse data
+        - e.g. Company Descriptions or Product Reviews
+    - financial research models
+    - One off integrations
+        - ticker→ earnings filings
+        - G2
+- Level 3: Access multiple files
+    - run ChatGPT across 20 different documents
+- Level 4: Functionality
+    - memory
+    - chainability
+        - slack
+        - email
+        - CSV
+- Level 5: organize outputs by companies- tie to a company or tie to multiple companies
+- UI
+    
+    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4d643d31-cb35-4a4c-845f-d1cf025c40f1/Untitled.png)
+    
+- Tooling/ capabilities
+    - a big fan of Streamlit – it’s very fast to set up, integrates well with LLM frameworks like Langchain and can be extended to meet the use case you describe below. [Vercel](notion://www.notion.so/tidemarkcap/Vercel.com) is the other platform that Diego used for the VKSP
+- Applications
+    - External data
+        - Earnings roundup for sourcing
+        - Tegus roundup for sourcing
+        - g2 roundup
+        - prospect extraction
+            - pulling deals out newsletters
+            - pulling company names (with sentiment)
+        - news round up of all external data
+        - sourcescrub conference targeting
+        - conference attendee list extraction —> spreadsheet
+        
+         
+        
+    - Internal data

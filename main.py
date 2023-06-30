@@ -10,7 +10,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.llms import HuggingFaceHub
 
 from htmlTemplates import css, bot_template, user_template
-from textFunctions import get_pdf_text, get_pdfs_text, get_text_chunks
+from textFunctions import get_pdf_text, get_pdfs_text, get_text_chunks, get_url_text
 from vizFunctions import roberta_barchat, vaders_barchart
 from prompts import set_prompt
 import os
@@ -81,6 +81,9 @@ def process_urls(url, TEMP, MODEL):
     st.session_state["chat_history"] = None
     st.session_state["user_question"] = ""
 
+    raw_text = get_url_text(url)
+    print('raw_text = ', raw_text)
+
 
 def pdf_analytics(pdf_docs):
     all_text = ""
@@ -143,22 +146,25 @@ def sidebar():
     global TEMP
     global pdf_docs
     with st.sidebar:
-        # with st.expander("Chat Bot Settings", expanded=True):
-        #     MODEL = st.selectbox(label='Model', options=['gpt-3.5-turbo'])
-        PERSONALITY = st.selectbox(label='Personality', options=['general assistant','academic','witty'])
-        #     TEMP = st.slider("Temperature",0.0,1.0,0.5)
+        with st.expander("Chat Bot Settings", expanded=True):
+            # MODEL = st.selectbox(label='Model', options=['gpt-3.5-turbo'])
+            PERSONALITY = st.selectbox(label='Personality', options=['general assistant','academic','witty'])
+            openAIKey = st.text_input('Open AI Key', placeholder='Please input your API-KEY', type='password')
+            if st.button("Set Key"):
+                os.environ['OPENAI_API_KEY'] = openAIKey
+            TEMP = st.slider("Temperature",0.0,1.0,0.5)
         # pdf_analytics_settings()
         with st.expander("Your Documents", expanded=True):
             document_url = st.text_input('URL', placeholder='Please input the URL')
-            # pdf_docs = st.file_uploader("Upload your PDFs here", accept_multiple_files=True)
-            if st.button("Process Files + New Chat"):
+            pdf_docs = st.file_uploader("Upload your PDFs here", accept_multiple_files=True)
+            if st.button("Magic"):
                 # print('document_url = ', document_url)
                 if pdf_docs:
                     with st.spinner("Processing"):
-                        process_docs(pdf_docs, 0.5, 'gpt-3.5-turbo')
-                # elif len(document_url) > 0:
-                #     with st.spinner("Processing"):
-
+                        process_docs(pdf_docs, TEMP, 'gpt-3.5-turbo')
+                elif len(document_url) > 0:
+                    with st.spinner("Processing"):
+                        process_urls(document_url, TEMP, 'gpt-3.5-turbo')
                 else: 
                     st.caption("Please Upload At Least 1 PDF")
                     st.session_state.pdf_processed = False
@@ -183,7 +189,7 @@ def main():
 
 
 if __name__ == '__main__':
-    os.environ['OPENAI_API_KEY'] = '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'
+    os.environ['OPENAI_API_KEY'] = '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'
     # load_dotenv()
     main()
 
