@@ -189,7 +189,7 @@ def main():
 
 
 if __name__ == '__main__':
-    os.environ['OPENAI_API_KEY'] = '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'
+    # os.environ['OPENAI_API_KEY'] = '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'
     # load_dotenv()
     main()
 
