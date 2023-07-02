@@ -5,10 +5,12 @@ from PyPDF2 import PdfReader
 from bs4 import BeautifulSoup
 import requests
 import langchain
+import tiktoken
+from langchain.embeddings import OpenAIEmbeddings
 
 
 # Multiple PDFs
-
+MAX_TOKENS = 500
 
 def get_pdfs_text(pdf_docs):
     text = ""
@@ -38,21 +40,30 @@ def get_text_chunks(text):
     return chunks
 
 
+def count_tokens(text: str) -> int:
+    encoding = tiktoken.get_encoding(OPENAI_EMBEDDING_ENCODING)
+    tokens = encoding.encode(text)
+    num_tokens = len(tokens)
+    return num_tokens, tokens
+
+
 def get_url_text(url):
-    test_urls = "https://www.wsj.com/articles/ukraine-says-frontlines-around-embattled-city-of-bakhmut-are-stabilizing-ed7dc7d"
-    # loader = UnstructuredURLLoader(urls=urls)
-    # data = loader.load()
-    # print(data)
-    response = requests.get(test_urls)
+    # test_urls = "https://www.wsj.com/articles/ukraine-says-frontlines-around-embattled-city-of-bakhmut-are-stabilizing-ed7dc7d"
+    test_urls = "https://blog.gopenai.com/let-the-scraped-data-tell-their-story-using-ai-911d6e8f8afc"
+    response = requests.get(url)
     content = response.text
 
-    # Step 2: Extract the relevant text from the webpage
     soup = BeautifulSoup(content, "html.parser")
     text = soup.get_text()
+    for script in soup(["script", "style"]):
+        script.extract()
 
-    # Step 3: Use the langchain library to generate the summary
-    # summary = langchain.summarize(text)
+    cleaned_text_content = soup.get_text()
+    print('cleaned_text_content = ', cleaned_text_content)
+    # # Step 5: Pass the text to Langchain for summarization
+    # lc = langchain.Langchain()
+    # summary = lc.summarize(cleaned_text_content)
 
-    # Step 4: Print or use the generated summary
-    print('here is summary = ', text)
-    return '13'
+    # # Step 6: Retrieve the summary
+    # print(summary)
+    return text

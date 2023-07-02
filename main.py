@@ -15,6 +15,9 @@ from vizFunctions import roberta_barchat, vaders_barchart
 from prompts import set_prompt
 import os
 
+MAX_TOKENS = 500
+CHUNK_TOKEN_SIZE = 200
+
 
 def init_ses_states():
     if "conversation" not in st.session_state:
@@ -22,13 +25,13 @@ def init_ses_states():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = None
     if "pdf_analytics_enabled" not in st.session_state:
-        st.session_state.pdf_analytics_enabled=False
+        st.session_state.pdf_analytics_enabled = False
     if "display_char_count" not in st.session_state:
-        st.session_state.display_char_count=False
+        st.session_state.display_char_count = False
     if "display_word_count" not in st.session_state:
-        st.session_state.display_word_count=False
+        st.session_state.display_word_count = False
     if "display_vaders" not in st.session_state:
-        st.session_state.display_vaders=False
+        st.session_state.display_vaders = False
 
 
 def get_vectorstore(text_chunks):
@@ -39,7 +42,8 @@ def get_vectorstore(text_chunks):
 
 def get_conversation_chain(vectorstore, temp, model):
     llm = ChatOpenAI(temperature=temp, model_name=model)
-    memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
+    memory = ConversationBufferMemory(
+        memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=vectorstore.as_retriever(),
@@ -49,19 +53,22 @@ def get_conversation_chain(vectorstore, temp, model):
 
 
 def handle_userinput(user_question, prompt):
-    response = st.session_state.conversation({'question': (prompt+user_question)})
+    response = st.session_state.conversation(
+        {'question': (prompt+user_question)})
     st.session_state.chat_history = response['chat_history']
     with st.spinner('Generating response...'):
         display_convo(prompt)
-        
+
 
 def display_convo(prompt):
     with st.container():
         for i, message in enumerate(reversed(st.session_state.chat_history)):
             if i % 2 == 0:
-                st.markdown(bot_template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
+                st.markdown(bot_template.replace(
+                    "{{MSG}}", message.content), unsafe_allow_html=True)
             else:
-                st.markdown(user_template.replace("{{MSG}}", message.content[len(prompt):]), unsafe_allow_html=True)
+                st.markdown(user_template.replace(
+                    "{{MSG}}", message.content[len(prompt):]), unsafe_allow_html=True)
 
 
 def process_docs(pdf_docs, TEMP, MODEL):
@@ -73,8 +80,10 @@ def process_docs(pdf_docs, TEMP, MODEL):
     text_chunks = get_text_chunks(raw_text)
     vectorstore = get_vectorstore(text_chunks)
 
-    st.session_state.conversation = get_conversation_chain(vectorstore, temp=TEMP, model=MODEL)
+    st.session_state.conversation = get_conversation_chain(
+        vectorstore, temp=TEMP, model=MODEL)
     st.session_state.pdf_processed = True
+
 
 def process_urls(url, TEMP, MODEL):
     st.session_state["conversation"] = None
@@ -82,7 +91,12 @@ def process_urls(url, TEMP, MODEL):
     st.session_state["user_question"] = ""
 
     raw_text = get_url_text(url)
-    print('raw_text = ', raw_text)
+    text_chunks = get_text_chunks(raw_text)
+    vectorstore = get_vectorstore(text_chunks)
+    print(text_chunks)
+    st.session_state.conversation = get_conversation_chain(
+        vectorstore, temp=TEMP, model=MODEL)
+    st.session_state.pdf_processed = True
 
 
 def pdf_analytics(pdf_docs):
@@ -95,10 +109,12 @@ def pdf_analytics(pdf_docs):
                 all_text += text
 
                 if st.session_state.display_word_count:
-                    st.markdown(f'<p class="small-font"># of Words: {len(text.split())}</p>', unsafe_allow_html=True)
+                    st.markdown(
+                        f'<p class="small-font"># of Words: {len(text.split())}</p>', unsafe_allow_html=True)
 
                 if st.session_state.display_char_count:
-                    st.markdown(f'<p class="small-font"># of Characters: {len(text)}</p>', unsafe_allow_html=True)
+                    st.markdown(
+                        f'<p class="small-font"># of Characters: {len(text)}</p>', unsafe_allow_html=True)
 
                 if st.session_state.display_vaders:
                     vaders_barchart(text, name=str(secure_filename(pdf.name)))
@@ -107,14 +123,16 @@ def pdf_analytics(pdf_docs):
                 if any([st.session_state.display_word_count, st.session_state.display_char_count, st.session_state.display_vaders]):
                     st.subheader("Collective Summary:")
                     if st.session_state.display_word_count:
-                        st.markdown(f'<p class="small-font"># of Words: {len(all_text.split())}</p>', unsafe_allow_html=True)
+                        st.markdown(
+                            f'<p class="small-font"># of Words: {len(all_text.split())}</p>', unsafe_allow_html=True)
 
                     if st.session_state.display_char_count:
-                        st.markdown(f'<p class="small-font"># of Characters: {len(all_text)}</p>', unsafe_allow_html=True)
+                        st.markdown(
+                            f'<p class="small-font"># of Characters: {len(all_text)}</p>', unsafe_allow_html=True)
 
                     if st.session_state.display_vaders:
-                        vaders_barchart(all_text, name=str(secure_filename(pdf_docs[-1].name)))
-
+                        vaders_barchart(all_text, name=str(
+                            secure_filename(pdf_docs[-1].name)))
 
 
 def pdf_analytics_settings():
@@ -125,9 +143,11 @@ def pdf_analytics_settings():
             st.caption("PDF Analytics Enabled")
             st.caption("Display Options")
 
-            st.session_state.display_char_count = st.checkbox("Character Count")
+            st.session_state.display_char_count = st.checkbox(
+                "Character Count")
             st.session_state.display_word_count = st.checkbox("Word Count")
-            st.session_state.display_vaders = st.checkbox("VADER Sentiment Analysis")
+            st.session_state.display_vaders = st.checkbox(
+                "VADER Sentiment Analysis")
 
         else:
             st.session_state.pdf_analytics_enabled = False
@@ -140,6 +160,7 @@ def display_file_code(filename):
     with st.expander(filename, expanded=False):
         st.code(code, language='python')
 
+
 def sidebar():
     global MODEL
     global PERSONALITY
@@ -148,15 +169,19 @@ def sidebar():
     with st.sidebar:
         with st.expander("Chat Bot Settings", expanded=True):
             # MODEL = st.selectbox(label='Model', options=['gpt-3.5-turbo'])
-            PERSONALITY = st.selectbox(label='Personality', options=['general assistant','academic','witty'])
-            openAIKey = st.text_input('Open AI Key', placeholder='Please input your API-KEY', type='password')
+            PERSONALITY = st.selectbox(label='Personality', options=[
+                                       'general assistant', 'academic', 'witty'])
+            openAIKey = st.text_input(
+                'Open AI Key', placeholder='Please input your API-KEY', type='password')
             if st.button("Set Key"):
                 os.environ['OPENAI_API_KEY'] = openAIKey
-            TEMP = st.slider("Temperature",0.0,1.0,0.5)
-        # pdf_analytics_settings()
+            TEMP = st.slider("Temperature", 0.0, 1.0, 0.5)
+        pdf_analytics_settings()
         with st.expander("Your Documents", expanded=True):
-            document_url = st.text_input('URL', placeholder='Please input the URL')
-            pdf_docs = st.file_uploader("Upload your PDFs here", accept_multiple_files=True)
+            document_url = st.text_input(
+                'URL', placeholder='Please input the URL')
+            pdf_docs = st.file_uploader(
+                "Upload your PDFs here", accept_multiple_files=True)
             if st.button("Magic"):
                 # print('document_url = ', document_url)
                 if pdf_docs:
@@ -165,13 +190,14 @@ def sidebar():
                 elif len(document_url) > 0:
                     with st.spinner("Processing"):
                         process_urls(document_url, TEMP, 'gpt-3.5-turbo')
-                else: 
+                else:
                     st.caption("Please Upload At Least 1 PDF")
                     st.session_state.pdf_processed = False
 
 
 def main():
-    st.set_page_config(page_title="Multi Document Chat Bot", page_icon=":books:")
+    st.set_page_config(page_title="Multi Document Chat Bot",
+                       page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
     init_ses_states()
     # deploy_tab= st.tabs(["Deployment"])
@@ -181,15 +207,14 @@ def main():
         prompt = set_prompt(PERSONALITY)
         pdf_analytics(pdf_docs)
         with st.form("user_input_form"):
-            user_question = st.text_input("Ask a question about your documents:")
+            user_question = st.text_input(
+                "Ask a question about your documents:")
             send_button = st.form_submit_button("Send")
         if send_button and user_question:
             handle_userinput(user_question, prompt)
-    else: st.caption("Please Upload Atleast 1 PDF Before Proceeding")
+    else:
+        st.caption("Please Upload Atleast 1 PDF Before Proceeding")
 
 
 if __name__ == '__main__':
-    # os.environ['OPENAI_API_KEY'] = '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'
-    # load_dotenv()
     main()
-
