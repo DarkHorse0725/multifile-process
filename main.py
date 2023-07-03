@@ -176,7 +176,7 @@ def sidebar():
             if st.button("Set Key"):
                 os.environ['OPENAI_API_KEY'] = openAIKey
             TEMP = st.slider("Temperature", 0.0, 1.0, 0.5)
-        pdf_analytics_settings()
+        # pdf_analytics_settings()
         with st.expander("Your Documents", expanded=True):
             document_url = st.text_input(
                 'URL', placeholder='Please input the URL')
