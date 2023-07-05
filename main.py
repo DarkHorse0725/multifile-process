@@ -93,7 +93,6 @@ def process_urls(url, TEMP, MODEL):
     raw_text = get_url_text(url)
     text_chunks = get_text_chunks(raw_text)
     vectorstore = get_vectorstore(text_chunks)
-    print(text_chunks)
     st.session_state.conversation = get_conversation_chain(
         vectorstore, temp=TEMP, model=MODEL)
     st.session_state.pdf_processed = True
@@ -171,10 +170,7 @@ def sidebar():
             # MODEL = st.selectbox(label='Model', options=['gpt-3.5-turbo'])
             PERSONALITY = st.selectbox(label='Personality', options=[
                                        'general assistant', 'academic', 'witty'])
-            openAIKey = st.text_input(
-                'Open AI Key', placeholder='Please input your API-KEY', type='password')
-            if st.button("Set Key"):
-                os.environ['OPENAI_API_KEY'] = openAIKey
+            
             TEMP = st.slider("Temperature", 0.0, 1.0, 0.5)
         # pdf_analytics_settings()
         with st.expander("Your Documents", expanded=True):
@@ -196,12 +192,18 @@ def sidebar():
 
 
 def main():
-    st.set_page_config(page_title="Multi Document Chat Bot",
-                       page_icon=":books:")
+    # st.set_page_config(page_title="Multi Document Chat Bot",
+    #                    page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
     init_ses_states()
     # deploy_tab= st.tabs(["Deployment"])
-    st.title("Chat with Multiple PDFs :books:")
+    username = st.session_state.user
+    st.title('Welcome ' + username)
+    user_promts = st.text_area('Set Prompts', placeholder='save your prompts')
+    openAIKey = st.text_input(
+                'Set & Update Open AI Key', placeholder='Please input your API-KEY', type='password')
+    if st.button("Set Key"):
+        os.environ['OPENAI_API_KEY'] = openAIKey
     sidebar()
     if st.session_state.get("pdf_processed"):
         prompt = set_prompt(PERSONALITY)
