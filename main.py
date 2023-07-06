@@ -195,6 +195,7 @@ def main():
     # st.set_page_config(page_title="Multi Document Chat Bot",
     #                    page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
+    
     init_ses_states()
     # deploy_tab= st.tabs(["Deployment"])
     username = st.session_state.user
